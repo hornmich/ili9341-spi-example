@@ -1,0 +1,3 @@
+[submodule "Drivers/ili9341-driver"]
+	path = Drivers/ili9341-driver
+	url = https://github.com/hornmich/ili9341-spi-driver.git
