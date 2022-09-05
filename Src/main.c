@@ -29,7 +29,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "ili9341.h"
+#include "ili_drv.h"
 #include "gears_img.h"
 /* USER CODE END Includes */
 
@@ -57,19 +57,19 @@
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 
-/* Wrapper functions required by ILI9341 driver */
-void gpio_cs_pin (ili9341_gpio_pin_value_t value);
-void gpio_dc_pin (ili9341_gpio_pin_value_t value);
-void gpio_rst_pin (ili9341_gpio_pin_value_t value);
+/* Wrapper functions required by ILI driver */
+void gpio_cs_pin (ili_gpio_pin_value_t value);
+void gpio_dc_pin (ili_gpio_pin_value_t value);
+void gpio_rst_pin (ili_gpio_pin_value_t value);
 bool spi_tx_dma_ready (void);
 int spi_tx_dma_b (const uint8_t* data, uint32_t len);
 
 /* Procedures for drawing test patterns */
-void test_fill_screen(ili9341_desc_ptr_t display, uint16_t color);
-void test_growing_box(ili9341_desc_ptr_t display);
-void test_regions(ili9341_desc_ptr_t display);
-void test_switch_orientation(ili9341_desc_ptr_t display, ili9341_orientation_t orientation);
-void test_draw_image(ili9341_desc_ptr_t display, const unsigned char* image, uint32_t size);
+void test_fill_screen(ili_desc_ptr_t display, uint16_t color);
+void test_growing_box(ili_desc_ptr_t display);
+void test_regions(ili_desc_ptr_t display);
+void test_switch_orientation(ili_desc_ptr_t display, ili_orientation_t orientation);
+void test_draw_image(ili_desc_ptr_t display, const unsigned char* image, uint32_t size);
 
 /* USER CODE END PFP */
 
@@ -85,14 +85,14 @@ void test_draw_image(ili9341_desc_ptr_t display, const unsigned char* image, uin
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-  ili9341_desc_ptr_t display;
-  const ili9341_cfg_t display_cfg = {
+  ili_desc_ptr_t display;
+  const ili_cfg_t display_cfg = {
 		  .cs_pin = gpio_cs_pin,
 		  .dc_pin = gpio_dc_pin,
 		  .rst_pin = gpio_rst_pin,
 		  .spi_tx_dma = spi_tx_dma_b,
 		  .spi_tx_ready = spi_tx_dma_ready,
-		  .orientation = ILI9341_ORIENTATION_HORIZONTAL,
+		  .orientation = ILI_ORIENTATION_HORIZONTAL,
 		  .width = 320,
 		  .height = 240,
 		  .timeout_ms = 10000,
@@ -100,7 +100,7 @@ int main(void)
 		  .restart_delay_ms = 20
   };
 
-  const ili9341_hw_cfg_t hw_cfg = ili9341_get_default_hw_cfg();
+  const ili_hw_cfg_t hw_cfg = ili_get_default_hw_cfg(ILI_TYPE_9341);
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -128,7 +128,7 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  display = ili9341_init(&display_cfg, &hw_cfg);
+  display = ili_init(&display_cfg, &hw_cfg);
   if (display == NULL) {
 	Error_Handler();
   }
@@ -141,7 +141,7 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	ili9341_set_orientation(display, ILI9341_ORIENTATION_HORIZONTAL_UD);
+	ili_set_orientation(display, ILI_ORIENTATION_HORIZONTAL_UD);
 
 	test_fill_screen(display, RED);
 	HAL_Delay(1000);
@@ -157,16 +157,16 @@ int main(void)
 	test_regions(display);
 
 	test_fill_screen(display, WHITE);
-	test_switch_orientation(display, ILI9341_ORIENTATION_HORIZONTAL);
+	test_switch_orientation(display, ILI_ORIENTATION_HORIZONTAL);
 
 	test_fill_screen(display, WHITE);
-	test_switch_orientation(display, ILI9341_ORIENTATION_VERTICAL_UD);
+	test_switch_orientation(display, ILI_ORIENTATION_VERTICAL_UD);
 
 	test_fill_screen(display, WHITE);
-	test_switch_orientation(display, ILI9341_ORIENTATION_HORIZONTAL_UD);
+	test_switch_orientation(display, ILI_ORIENTATION_HORIZONTAL_UD);
 
 	test_fill_screen(display, WHITE);
-	test_switch_orientation(display, ILI9341_ORIENTATION_VERTICAL);
+	test_switch_orientation(display, ILI_ORIENTATION_VERTICAL);
 
 	test_fill_screen(display, WHITE);
 	test_draw_image(display, gears_img, GEARS_IMG_SIZE);
@@ -220,18 +220,18 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 
-void gpio_cs_pin (ili9341_gpio_pin_value_t value)
+void gpio_cs_pin (ili_gpio_pin_value_t value)
 {
 	HAL_GPIO_WritePin(CSX_GPIO_Port, CSX_Pin, value);
 }
 
-void gpio_dc_pin (ili9341_gpio_pin_value_t value)
+void gpio_dc_pin (ili_gpio_pin_value_t value)
 {
 	HAL_GPIO_WritePin(WRX_DCX_GPIO_Port, WRX_DCX_Pin, value);
 
 }
 
-void gpio_rst_pin (ili9341_gpio_pin_value_t value)
+void gpio_rst_pin (ili_gpio_pin_value_t value)
 {
 	HAL_GPIO_WritePin(RST_NC_GPIO_Port, RST_NC_Pin, value);
 }
@@ -258,19 +258,19 @@ int spi_tx_dma_b (const uint8_t* data, uint32_t len)
 	return 0;
 }
 
-void test_fill_screen(ili9341_desc_ptr_t display, uint16_t color)
+void test_fill_screen(ili_desc_ptr_t display, uint16_t color)
 {
     coord_2d_t top_left, bottom_right;
 
 	top_left.x = 0;
 	top_left.y = 0;
-	bottom_right.x = ili9341_get_screen_width(display);
-	bottom_right.y = ili9341_get_screen_height(display);
-	ili9341_set_region(display, top_left, bottom_right);
-	ili9341_fill_region(display, color);
+	bottom_right.x = ili_get_screen_width(display);
+	bottom_right.y = ili_get_screen_height(display);
+	ili_set_region(display, top_left, bottom_right);
+	ili_fill_region(display, color);
 }
 
-void test_growing_box(ili9341_desc_ptr_t display)
+void test_growing_box(ili_desc_ptr_t display)
 {
     coord_2d_t top_left, bottom_right;
 	uint16_t bg_color = WHITE;
@@ -282,26 +282,26 @@ void test_growing_box(ili9341_desc_ptr_t display)
 			top_left.y = 240/2-size/2;
 			bottom_right.x = 320/2+size/2;
 			bottom_right.y = 240/2+size/2;
-			ili9341_set_region(display, top_left, bottom_right);
-			ili9341_fill_region(display, colors[clr]);
+			ili_set_region(display, top_left, bottom_right);
+			ili_fill_region(display, colors[clr]);
 			HAL_Delay(100);
 		}
 
 		for (int size = 200; size > 0; size -= 10) {
-			ili9341_set_region(display, top_left, bottom_right);
-			ili9341_fill_region(display, bg_color);
+			ili_set_region(display, top_left, bottom_right);
+			ili_fill_region(display, bg_color);
 			top_left.x = 320/2-size/2;
 			top_left.y = 240/2-size/2;
 			bottom_right.x = 320/2+size/2;
 			bottom_right.y = 240/2+size/2;
-			ili9341_set_region(display, top_left, bottom_right);
-			ili9341_fill_region(display, colors[clr]);
+			ili_set_region(display, top_left, bottom_right);
+			ili_fill_region(display, colors[clr]);
 			HAL_Delay(100);
 		}
 	}
 }
 
-void test_regions(ili9341_desc_ptr_t display)
+void test_regions(ili_desc_ptr_t display)
 {
     coord_2d_t top_left, bottom_right;
 	uint16_t color;
@@ -311,8 +311,8 @@ void test_regions(ili9341_desc_ptr_t display)
 	bottom_right.x = 160;
 	bottom_right.y = 120;
 	color = BLACK;
-	ili9341_set_region(display, top_left, bottom_right);
-	ili9341_fill_region(display, color);
+	ili_set_region(display, top_left, bottom_right);
+	ili_fill_region(display, color);
 	HAL_Delay(1000);
 
 	top_left.x = 0;
@@ -320,8 +320,8 @@ void test_regions(ili9341_desc_ptr_t display)
 	bottom_right.x = 160;
 	bottom_right.y = 240;
 	color = GREEN;
-	ili9341_set_region(display, top_left, bottom_right);
-	ili9341_fill_region(display, color);
+	ili_set_region(display, top_left, bottom_right);
+	ili_fill_region(display, color);
 	HAL_Delay(1000);
 
 	top_left.x = 161;
@@ -329,8 +329,8 @@ void test_regions(ili9341_desc_ptr_t display)
 	bottom_right.x = 320;
 	bottom_right.y = 120;
 	color = BLUE;
-	ili9341_set_region(display, top_left, bottom_right);
-	ili9341_fill_region(display, color);
+	ili_set_region(display, top_left, bottom_right);
+	ili_fill_region(display, color);
 	HAL_Delay(1000);
 
 	top_left.x = 161;
@@ -338,38 +338,38 @@ void test_regions(ili9341_desc_ptr_t display)
 	bottom_right.x = 320;
 	bottom_right.y = 240;
 	color = RED;
-	ili9341_set_region(display, top_left, bottom_right);
-	ili9341_fill_region(display, color);
+	ili_set_region(display, top_left, bottom_right);
+	ili_fill_region(display, color);
 	HAL_Delay(1000);
 }
 
-void test_switch_orientation(ili9341_desc_ptr_t display, ili9341_orientation_t orientation)
+void test_switch_orientation(ili_desc_ptr_t display, ili_orientation_t orientation)
 {
     coord_2d_t top_left, bottom_right;
 	uint16_t color;
 
-	ili9341_set_orientation(display, orientation);
+	ili_set_orientation(display, orientation);
 	top_left.x = 0;
 	top_left.y = 0;
-	bottom_right.x = ili9341_get_screen_width(display)-20;
-	bottom_right.y = ili9341_get_screen_height(display)-20;;
+	bottom_right.x = ili_get_screen_width(display)-20;
+	bottom_right.y = ili_get_screen_height(display)-20;;
 	color = BLACK;
-	ili9341_set_region(display, top_left, bottom_right);
-	ili9341_fill_region(display, color);
+	ili_set_region(display, top_left, bottom_right);
+	ili_fill_region(display, color);
 	HAL_Delay(1000);
 
 }
 
-void test_draw_image(ili9341_desc_ptr_t display, const unsigned char* image, uint32_t size)
+void test_draw_image(ili_desc_ptr_t display, const unsigned char* image, uint32_t size)
 {
     coord_2d_t top_left, bottom_right;
 
 	top_left.x = 0;
 	top_left.y = 0;
-	bottom_right.x = ili9341_get_screen_width(display);
-	bottom_right.y = ili9341_get_screen_height(display);
-	ili9341_set_region(display, top_left, bottom_right);
-	ili9341_draw_RGB565_dma(display, image, size);
+	bottom_right.x = ili_get_screen_width(display);
+	bottom_right.y = ili_get_screen_height(display);
+	ili_set_region(display, top_left, bottom_right);
+	ili_draw_RGB565_dma(display, image, size);
 }
 /* USER CODE END 4 */
 
@@ -392,7 +392,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   /* USER CODE BEGIN Callback 1 */
 
   /* Update Display driver timers. */
-  ili9341_1ms_timer_cb();
+  ili_1ms_timer_cb();
 
   /* USER CODE END Callback 1 */
 }
