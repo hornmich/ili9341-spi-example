@@ -1,15 +1,15 @@
 # ili9341-spi-example
 
-Example of using [ili9341-spi-driver]() on STM32F429I
+Example of using [ili9341-spi-driver](https://github.com/hornmich/ili9341-spi-driver) on STM32F429I
 discovery kit with ILI9341.
 
 ## Overview
 
-This is a testing and example project to test the [ili9341-spi-driver]()
+This is a testing and example project to test the [ili9341-spi-driver](https://github.com/hornmich/ili9341-spi-driver)
 on STM32F429I discovery kit.
 
 The project is using STM32CubeIDE, STM32CubeMX generated code skeleton and HAL layer as basis and can be used as quick to run
-reference of how to use the [ili9341-spi-driver]().
+reference of how to use the [ili9341-spi-driver](https://github.com/hornmich/ili9341-spi-driver).
 
 The application inistantiates one display driver instance and loop over the following steps to test the API functions:
 
